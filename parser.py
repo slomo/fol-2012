@@ -23,4 +23,4 @@ def parse_string(string):
 
 def parse_file(filename):
     with open(filename) as f:
-        parse_String(f.read())
+        return parse_string(f.read())
