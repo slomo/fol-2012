@@ -1,5 +1,5 @@
-from pyparsing import *
-from types import *
+from pyparsing import OneOrMore, Group, Suppress, oneOf, Word, opAssoc, operatorPrecedence, alphanums
+from fofTypes import *
 
 fof_binary_symbols = [ "|", "&", "=>", "<=", "~&", "~|", "<=>", "<~>" ]
 fof_binary_operators = [ (op, 2, opAssoc.LEFT, BinaryOperand) for op in fof_binary_symbols ]
@@ -18,4 +18,9 @@ tptp = OneOrMore(
             oneOf("axiom theorem") + komma +
             fof_expr + Suppress(")") + dot))
 
-print(tptp.parseString("fof(axiom1, axiom, ~ sr & tr | x)."))
+def parse_string(string):
+    return tptp.parseString(string)
+
+def parse_file(filename):
+    with open(filename) as f:
+        parse_String(f.read())
