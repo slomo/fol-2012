@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import parser as tptp
 import argparse as a
+import operations as o
 
 def from_file(file):
     return tptp.parse_file(file)
