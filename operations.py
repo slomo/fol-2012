@@ -31,17 +31,17 @@ def rewriteNotEquiv(node):
 
 def rewriteNotOr(node):
     leftnode = f.UnaryOperand('~')
-    leftnode.term = node.term[0]
-    rightnode = f.UnaryOperad('~')
-    rightnode.term = node.term[1]
+    leftnode.term = node.terms[0]
+    rightnode = f.UnaryOperand('~')
+    rightnode.term = node.terms[1]
     node = f.BinaryOperand('&')
     node.terms = leftnode,rightnode
 
 def rewriteNotAnd(node):
     leftnode = f.UnaryOperand('~')
-    leftnode.term = node.term[0]
+    leftnode.term = node.terms[0]
     rightnode = f.UnaryOperand('~')
-    rightnode.term = node.term[1]
+    rightnode.term = node.terms[1]
     node = f.BinaryOperand('|')
     node.terms = leftnode,rightnode
 

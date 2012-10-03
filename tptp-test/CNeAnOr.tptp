@@ -1,1 +1,1 @@
-fof(axiom1, axiom, ~ sr & tr | x).
+fof(axiom1, axiom, ~ sr & tr | x <~> a ~| b).
