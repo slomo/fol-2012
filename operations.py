@@ -58,7 +58,7 @@ def rewriteNotOr(node):
 def rewriteNotAnd(node):
     leftnode = f.UnaryOperand('~')
     leftnode = node.term[0]
-    rightnode = f.UnaryOperad('~')
+    rightnode = f.UnaryOperand('~')
     rightnode = node.term[1]
     node = f.BinaryOperand('|')
     node.terms[0] = leftnode
