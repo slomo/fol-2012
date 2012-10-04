@@ -6,6 +6,8 @@ import operations as o
 def from_file(file):
     return tptp.parse_file(file)
 
+axoims = []
+
 
 if __name__ == '__main__':
 
@@ -14,4 +16,5 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     if args['file']:
         x = from_file(args['file'])
-        print(x)
+        x = x[0][3]
+        import pdb; pdb.set_trace()
