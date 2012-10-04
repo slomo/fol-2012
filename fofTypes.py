@@ -12,6 +12,9 @@ class UnaryOperand(object):
     def __repr__(self):
         return "(" + self.op + " " + repr(self.term) + ")"
 
+    def __eq__(self,other):
+	return repr(self) == repr(other)
+
 class BinaryOperand(object):
 
     def __init__(self, op, term_list=None):
@@ -24,6 +27,9 @@ class BinaryOperand(object):
     def __repr__(self):
         return "(" + repr(self.terms[0]) + " " + self.op + " " + repr(self.terms[1]) + ")"
 
+    def __eq__(self,other):
+        return repr(self) == repr(other) 
+
 class Identifier(object):
 
     def __init__(self, string):
@@ -31,3 +37,6 @@ class Identifier(object):
 
     def __repr__(self):
         return "<" + self.name + ">"
+
+    def __eq__(self,other):
+        return repr(self) == repr(other)
