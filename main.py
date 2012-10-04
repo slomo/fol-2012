@@ -17,6 +17,7 @@ if __name__ == '__main__':
     x = 0
     if args['file']:
         x = from_file(args['file'])
+        import pdb; pdb.set_trace()
         print(x)
     else :
         x = from_string("fof(axiom1, axiom, b <~> c).")
