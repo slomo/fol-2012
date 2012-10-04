@@ -6,11 +6,15 @@ import fofTypes as f
 
 def rewriteImplyR(node):
     node.op = '|'
-    node.terms = f.UnaryOperand('~'), node.terms[1]
+    leftnode = f.UnaryOperand('~')
+    leftnode.term = node.terms[0]
+    node.terms = leftnode, node.terms[1]
 
 def rewriteImplyL(node):
     node.op = '|'
-    node.terms = node.terms[0],f.UnaryOperand('~')
+    rightnode = f.UnaryOperand('~')
+    rightnode.term = node.terms[1]
+    node.terms = node.terms[0],rightnode
 
 def rewriteEquiv(node):
     leftnode = f.BinaryOperand('&')
