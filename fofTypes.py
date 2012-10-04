@@ -10,7 +10,7 @@ class UnaryOperand(object):
         return "(" + self.op + " " + repr(self.term) + ")"
 
     def __eq__(self,other):
-	return repr(self) == repr(other)
+        return repr(self) == repr(other)
 
 class BinaryOperand(object):
 
@@ -22,7 +22,7 @@ class BinaryOperand(object):
         return "(" + repr(self.terms[0]) + " " + self.op + " " + repr(self.terms[1]) + ")"
 
     def __eq__(self,other):
-        return repr(self) == repr(other) 
+        return repr(self) == repr(other)
 
 class Identifier(object):
 
