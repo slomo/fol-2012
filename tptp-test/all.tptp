@@ -1,1 +1,1 @@
-fof(axiom1, axiom, (((((((((a | b) & c) => d) <= e) <=> f) <~> g) ~| h) ~& i) | (~ j))).
+fof(axiom1, axiom, a | b & c => d <= e <=> f <~> g ~| h ~& i).
