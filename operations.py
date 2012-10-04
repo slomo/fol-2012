@@ -35,6 +35,13 @@ def rewriteNotAnd(node):
     node = f.BinaryOperand('|',leftnode,rightnode)
     return node
 
+def rewriteNot(node):
+    if not isinstance(node.term, f.Identifier):
+        pass
+    return node
+
+
+
 transformations = {
     '=>' : rewriteImplyR,
     '<=' : rewriteImplyL,
@@ -42,19 +49,24 @@ transformations = {
     '<~>' : rewriteNotEquiv,
     '~&' : rewriteNotAnd,
     '~|' : rewriteNotOr,
+    '~' : rewriteNot,
 
 }
 
 def transform(node):
-    if hasattr(node, 'terms'):
-            node.terms = (transform(node.terms[0]), transform(node.terms[1]))
-    if hasattr(node, 'term'):
-            node.term = transform(node.term)
-    if hasattr(node, 'op'):
-        if node.op in transformations:
-            return transformations[node.op](node)
-        else:
+    print('Applying rule for ', transformations[node.op](node))
+    if node.op in transformations:
+        if isinstance(node, f.BinaryOperand):
+            t = transformations[node.op](node)
+            leftnode = transform(t.terms[0])
+            rightnode = transform(t.terms[1])
+            t.terms = leftnode, rightnode
+        if isinstance(node, f.UnaryOperand):
+            t = transformations[node.op](node)
+            node = t
+            transform(node)
+        if isinstance(node, f.Identifier):
             return node
-    if type(node) == f.Identifier:
+    else:
+        node.terms = transform(node.terms[0]),transform(node.terms[1])
         return node
-
