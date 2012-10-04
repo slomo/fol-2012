@@ -2,11 +2,8 @@ from pyparsing import *
 
 class UnaryOperand(object):
 # Since we only have 1 unary operation we can safely assume it is a negation
-    def __init__(self, op = '~', term_list=None):
-        if term_list is not None:
-            [op, term] = term_list[0]
-            self.term_list = term_list
-            self.term = term
+    def __init__(self, op, term):
+        self.term = term
         self.op = op
 
     def __repr__(self):
@@ -14,11 +11,8 @@ class UnaryOperand(object):
 
 class BinaryOperand(object):
 
-    def __init__(self, op, term_list=None):
-        if term_list is not None:
-            [left_term, op, right_term] = term_list[0]
-            self.terms = left_term, right_term
-            self.term_list = term_list
+    def __init__(self, op, left_term, right_term):
+        self.terms = (left_term, right_term)
         self.op = op
 
     def __repr__(self):
