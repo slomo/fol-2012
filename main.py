@@ -24,6 +24,6 @@ if __name__ == '__main__':
 
     tree = x[0][3]
     print(tree)
-    o.transform(tree)
+    tree = o.transform(tree)
     print("and transformed ...")
     print(tree)
