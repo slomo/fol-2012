@@ -53,6 +53,8 @@ def transform(node):
     if hasattr(node, 'op'):
         if node.op in transformations:
             return transformations[node.op](node)
+        else:
+            return node
     if type(node) == f.Identifier:
         return node
 
