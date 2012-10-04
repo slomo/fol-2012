@@ -20,7 +20,7 @@ if __name__ == '__main__':
         import pdb; pdb.set_trace()
         print(x)
     else :
-        x = from_string("fof(axiom1, axiom, b <~> c).")
+        x = from_string("fof(axiom1, axiom, b <~> c => b).")
 
     tree = x[0][3]
     print(tree)

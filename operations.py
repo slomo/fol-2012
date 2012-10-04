@@ -47,13 +47,12 @@ transformations = {
 
 def transform(node):
     if hasattr(node, 'terms'):
-        if node.terms[0]:
-                transform(node.terms[0])
-        if node.terms[1]:
-                transform(node.terms[1])
+            node.terms = (transform(node.terms[0]), transform(node.terms[1]))
     if hasattr(node, 'term'):
-            transform(node.term)
+            node.term = transform(node.term)
     if hasattr(node, 'op'):
         if node.op in transformations:
             return transformations[node.op](node)
+    if type(node) == f.Identifier:
+        return node
 
