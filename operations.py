@@ -1,15 +1,7 @@
 import parser
 import fofTypes as f
 
-transformations = {
-    '=>' : rewriteImplyR,
-    '<=' : rewriteImplyL,
-    '<=>' : rewriteEquiv,
-    '<~>' : rewriteNotEquiv,
-    '~&' : rewriteNotAnd,
-    '~|' : rewriteNotOr,
 
-}
 
 
 def rewriteImplyR(node):
@@ -18,7 +10,9 @@ def rewriteImplyR(node):
 
 def rewriteImplyL(node):
     node.op = '|'
-    node.terms[1] = f.UnaryOperand('~', node.terms[1])
+    temp_terms = node.terms[1]
+    node.terms[1] = f.UnaryOperand('~')
+    node.terms[1].term = temp_terms
 
 def rewriteEquiv(node):
     leftnode = f.BinaryOperand('&')
@@ -63,3 +57,13 @@ def rewriteNotAnd(node):
     node = f.BinaryOperand('|')
     node.terms[0] = leftnode
     node.terms[1] = rightnode
+
+transformations = {
+    '=>' : rewriteImplyR,
+    '<=' : rewriteImplyL,
+    '<=>' : rewriteEquiv,
+    '<~>' : rewriteNotEquiv,
+    '~&' : rewriteNotAnd,
+    '~|' : rewriteNotOr,
+
+}
