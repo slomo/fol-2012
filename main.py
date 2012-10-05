@@ -22,9 +22,9 @@ if __name__ == '__main__':
         print(x)
     else :
         #x = from_string("(( not a and b) or q )")
-        x = from_string("fof(ax, axiom, ( ~ a | a ) & ( b | ~b ) ).")
+        x = from_string("fof(ax, axiom, ( ~ a | a ) & ( b | ~ b ) ).")
 
-    tree = x[0][3]
+    tree = x[0]["formula"]
     print(tree)
     tree = f.UnaryOperand("~",tree)
     tree = o.transform(tree)

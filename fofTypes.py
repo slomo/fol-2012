@@ -39,3 +39,28 @@ class Identifier(object):
 
     def __eq__(self,other):
         return repr(self) == repr(other)
+
+class Quantor(object):
+
+    def __init__(self, string, variables, term):
+        self.quantor = string
+        self.variables = variables
+        self.term = term
+
+    def __repr__(self):
+        return self.quantor + " " + repr(self.variables) + " : " + repr(self.term)
+
+    def __eq__(self,other):
+        return repr(self) == repr(other)
+
+class Variable(object):
+
+    def __init__(self, string):
+        self.name = string
+
+    def __repr__(self):
+        return self.name
+
+    def __eq__(self,other):
+        return repr(self) == repr(other)
+
