@@ -36,9 +36,19 @@ def rewriteNotAnd(node):
     return node
 
 def rewriteNot(node):
-    if not isinstance(node.term, f.Identifier):
-        pass
+    if isinstance(node.term, f.Identifier):
+        return node
+    if isinstance(node.term, f.UnaryOperand):
+        node = node.term.term
+    if isinstance(node.term, f.BinaryOperand):
+        leftnode = f.UnaryOperand('~', node.term.terms[0])
+        rightnode = f.UnaryOperand('~', node.term.terms[1])
+        if node.term.op == '|':
+            node = f.BinaryOperand('&', leftnode, rightnode)
+        elif node.term.op == '&':
+            node = f.BinaryOperand('|', leftnode, rightnode)
     return node
+
 
 
 
@@ -54,19 +64,16 @@ transformations = {
 }
 
 def transform(node):
-    print('Applying rule for ', transformations[node.op](node))
+    if isinstance(node, f.Identifier):
+        return node
     if node.op in transformations:
-        if isinstance(node, f.BinaryOperand):
-            t = transformations[node.op](node)
-            leftnode = transform(t.terms[0])
-            rightnode = transform(t.terms[1])
-            t.terms = leftnode, rightnode
-        if isinstance(node, f.UnaryOperand):
-            t = transformations[node.op](node)
-            node = t
-            transform(node)
-        if isinstance(node, f.Identifier):
-            return node
+        print('Applying rule for ', node.op,  ' leading to: \n'
+              ,transformations[node.op](node))
+        node = transformations[node.op](node)
+        if node.op != '~':
+            node.terms = transform(node.terms[0]),transform(node.terms[1])
+        else:
+            node.term = transform(node.term)
     else:
         node.terms = transform(node.terms[0]),transform(node.terms[1])
-        return node
+    return node
