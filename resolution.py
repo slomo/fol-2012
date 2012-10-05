@@ -27,8 +27,10 @@ def proof(formula):
 
     noDupes = []
     [noDupes.append(i) for i in clauses if not noDupes.count(i)]
-    return noDupes
 
+    print("splitted formulas", noDupes)
+
+    return resolute(noDupes)
 
 # returns: <[]>
 def split_any(disjunction):
@@ -48,7 +50,8 @@ def split_any(disjunction):
             if type(formula) == f.BinaryOperand and formula.op == "&":
                 d = deepcopy(disjunction)
                 d.remove(formula)
-                d1 = deepcopy(d).append(formula.terms[0])
+                d1 = deepcopy(d)
+                d1.append(formula.terms[0])
                 result_set.append(d1)
 
                 d.append(formula.terms[1])
@@ -67,23 +70,43 @@ def split_any(disjunction):
     return result_set
 
 
+def is_tautology(d):
+
+    for q in d:
+        negate = f.UnaryOperand("~",q)
+        if negate in d:
+            return True
+    return False
+
+
+
 def resolute(knf):
 
     for disj in knf:
 
         for elem in disj:
 
-            if type(elem) is UnaryOperand:
+            # check weather i look for ~Z or Z
+            if type(elem) is f.UnaryOperand:
                 target = elem.term
             else:
-                target = UnaryOperand("~",elem)
+                target = f.UnaryOperand("~",elem)
 
-            for other in deepcopy(knf):
+            for other_disj in deepcopy(knf):
+                if target in other_disj:
 
-                if target in other:
-                    d = deepcopy(other)
+                    d = deepcopy(other_disj)
                     d.remove(target)
                     d.extend(disj)
                     d.remove(elem)
-                    knf.append(d)
+                    noDupes = []
+                    [noDupes.append(i) for i in d if not noDupes.count(i)]
+                    d = noDupes
 
+                    if len(d) == 0:
+                        return True
+                    if not (d in knf) and not is_tautology(d):
+                        print("Resoluting",disj,"with",other_disj,"to",d)
+                        knf.append(d)
+
+    return False

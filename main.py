@@ -2,7 +2,8 @@
 import parser as tptp
 import argparse as a
 import operations as o
-#import resolution as r
+import resolution as r
+import fofTypes as f
 
 def from_file(file):
     return tptp.parse_file(file)
@@ -21,10 +22,11 @@ if __name__ == '__main__':
         print(x)
     else :
         #x = from_string("(( not a and b) or q )")
-        x = from_string("fof(ax, axiom, ~(( ~ a & b) | q ) ).")
+        x = from_string("fof(ax, axiom, ( ~ a | a ) & ( b | ~b ) ).")
 
     tree = x[0][3]
     print(tree)
+    tree = f.UnaryOperand("~",tree)
     tree = o.transform(tree)
     print("and transformed ...")
     print(tree)
