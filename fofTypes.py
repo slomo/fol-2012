@@ -13,7 +13,7 @@ class UnaryOperand(object):
         return repr(self) == repr(other)
 
     def __hash__(self):
-        return int(repr(self))
+        return hash(self.op) ^ hash(self.term)
 
 class BinaryOperand(object):
 
@@ -27,7 +27,7 @@ class BinaryOperand(object):
         return repr(self) == repr(other)
 
     def __hash__(self):
-        return int(repr(self))
+        return hash(self.op) ^ hash(self.terms)
 
 class Identifier(object):
 
@@ -39,6 +39,9 @@ class Identifier(object):
 
     def __eq__(self,other):
         return repr(self) == repr(other)
+
+    def __hash__(self):
+        return hash(self.name)
 
 class Quantor(object):
 
