@@ -19,7 +19,7 @@ if __name__ == '__main__':
         x = from_file(args['file'])
         print(x)
     else :
-        x = from_string("fof(axiom1, axiom, b <~> c => b).")
+        x = from_string("fof(axiom1, axiom,  a | b => c).")
 
     tree = x[0][3]
     print(tree)
