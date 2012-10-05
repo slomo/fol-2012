@@ -2,6 +2,7 @@
 import parser as tptp
 import argparse as a
 import operations as o
+import resolution as r
 
 def from_file(file):
     return tptp.parse_file(file)
@@ -19,10 +20,13 @@ if __name__ == '__main__':
         x = from_file(args['file'])
         print(x)
     else :
-        x = from_string("fof(axiom1, axiom, b <~> c => b).")
+        #x = from_string("(( not a and b) or q )")
+        x = from_string("fof(ax, axiom, ~(( ~ a & b) | q ) ).")
 
     tree = x[0][3]
     print(tree)
     tree = o.transform(tree)
     print("and transformed ...")
     print(tree)
+    print("and solved")
+    print(r.proof(tree))
