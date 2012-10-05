@@ -2,7 +2,7 @@
 import parser as tptp
 import argparse as a
 import operations as o
-import resolution as r
+#import resolution as r
 
 def from_file(file):
     return tptp.parse_file(file)
