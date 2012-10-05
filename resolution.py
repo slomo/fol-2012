@@ -14,41 +14,39 @@ def is_splittable(form):
 
 def proof(formula):
 
-    clauses = [[formula]]
+    splittables = set([frozenset([formula])])
+    result = []
 
-    # FIXME: i am so dumb
-    for i in range(20):
+    while len(splittables) > 0:
 
-        new_clauses = []
-        [ new_clauses.extend(split_any(x)) for x in clauses ]
+        disj = splittables.pop()
 
-        #import pdb; pdb.set_trace()
-        clauses = new_clauses
+        [ splittables.add(frozenset(x)) for x in split_any(disj) ]
 
-    noDupes = []
-    [noDupes.append(i) for i in clauses if not noDupes.count(i)]
+        result.append(disj)
 
-    print("splitted formulas", noDupes)
+    print("splitted formulas", result)
 
-    return resolute(noDupes)
+    return resolute(result)
 
 # returns: <[]>
 def split_any(disjunction):
 
-    result_set = [ disjunction ]
+    result_set = []
 
     for formula in disjunction:
         if is_splittable(formula):
 
             if type(formula) == f.UnaryOperand:
                 if type(formula.term) == f.UnaryOperand:
-                    d = deepcopy(disjunction).remove(formula)
+                    d = list(disjunction)
+                    d.remove(formula)
                     d.append(formula.term.term)
                     break
 
             #alpha
             if type(formula) == f.BinaryOperand and formula.op == "&":
-                d = deepcopy(disjunction)
+                d = list(disjunction)
                 d.remove(formula)
                 d1 = deepcopy(d)
                 d1.append(formula.terms[0])
@@ -60,7 +58,7 @@ def split_any(disjunction):
 
             # is beta
             if type(formula) == f.BinaryOperand and formula.op == "|":
-                d = deepcopy(disjunction)
+                d = list(disjunction)
                 d.remove(formula)
                 d.append(formula.terms[0])
                 d.append(formula.terms[1])
@@ -95,13 +93,12 @@ def resolute(knf):
             for other_disj in deepcopy(knf):
                 if target in other_disj:
 
-                    d = deepcopy(other_disj)
+                    d = list(other_disj)
                     d.remove(target)
                     d.extend(disj)
                     d.remove(elem)
-                    noDupes = []
-                    [noDupes.append(i) for i in d if not noDupes.count(i)]
-                    d = noDupes
+
+                    d = frozenset(d)
 
                     if len(d) == 0:
                         return True
