@@ -40,6 +40,7 @@ def rewriteNot(node):
         return node
     if isinstance(node.term, f.UnaryOperand):
         node = node.term.term
+        return node
     if isinstance(node.term, f.BinaryOperand):
         leftnode = f.UnaryOperand('~', node.term.terms[0])
         rightnode = f.UnaryOperand('~', node.term.terms[1])
@@ -67,9 +68,9 @@ def transform(node):
     if isinstance(node, f.Identifier):
         return node
     if node.op in transformations:
-        print('Applying rule for ', node.op,  ' leading to: \n'
-              ,transformations[node.op](node))
         node = transformations[node.op](node)
+        if isinstance(node, f.Identifier):
+            return node
         if node.op != '~':
             node.terms = transform(node.terms[0]),transform(node.terms[1])
         else:
@@ -77,3 +78,9 @@ def transform(node):
     else:
         node.terms = transform(node.terms[0]),transform(node.terms[1])
     return node
+
+def unify():
+    pass
+
+def substitute():
+    pass
