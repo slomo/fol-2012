@@ -2,10 +2,10 @@ import pyparsing as pp
 from fofTypes import *
 
 def unary_handler(s, l, t):
-    return UnaryOperand(t[0][0], t[0][1])
+    return UnaryOperator(t[0][0], t[0][1])
 
 def binary_handler(s, l, t):
-    return BinaryOperand(t[0][1], t[0][0], t[0][2])
+    return BinaryOperator(t[0][1], t[0][0], t[0][2])
 
 def quantor_handler(s, l, t):
     variables = list(t[0][1])
