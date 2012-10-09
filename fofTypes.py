@@ -1,15 +1,23 @@
 from pyparsing import *
 
-class fofObject(object):
+class Formula(object):
+    terms = None
+    op = None
 
     def negate(self):
-        return UnaryOperand("~", self)
+       	return UnaryOperand("~", self)
 
-class UnaryOperand(fofObject):
+class Term(Formula):
+    terms = None    
+    op = None
+
+class UnaryOperand(Formula):
 # Since we only have 1 unary operation we can safely assume it is a negation
-    def __init__(self, op, term):
-        self.term = term
-        self.op = op
+    def __init__(self, op, terms):
+    	# if len(terms) > 1 something went wrong
+    	if len(terms) > 1: raise Exception('Too many arguments for unary operator', ' ')
+    	self.terms = terms
+    	self.op = op
 
     def __repr__(self):
         return self.op + repr(self.term)
@@ -23,7 +31,7 @@ class UnaryOperand(fofObject):
     def negate(self):
         return self.term
 
-class BinaryOperand(fofObject):
+class BinaryOperand(Formula):
 
     def __init__(self, op, left_term, right_term):
         self.terms = (left_term, right_term)
@@ -37,26 +45,12 @@ class BinaryOperand(fofObject):
     def __hash__(self):
         return hash(self.op) ^ hash(self.terms)
 
-class Identifier(fofObject):
+class Quantor(Formula):
 
-    def __init__(self, string):
-        self.name = string[0]
-
-    def __repr__(self):
-        return self.name
-
-    def __eq__(self,other):
-        return repr(self) == repr(other)
-
-    def __hash__(self):
-        return hash(self.name)
-
-class Quantor(fofObject):
-
-    def __init__(self, string, variables, term):
+    def __init__(self, string, variables, terms):
         self.quantor = string
         self.variables = variables
-        self.term = term
+        self.terms = terms
 
     def __repr__(self):
         return self.quantor + " " + repr(self.variables) + " : " + repr(self.term)
@@ -64,7 +58,45 @@ class Quantor(fofObject):
     def __eq__(self,other):
         return repr(self) == repr(other)
 
-class Variable(object):
+class Relation(Formula):
+   
+
+    def __init__(self,name,terms):
+	""" terms is a list of terms.
+	    Like in lecture, containing constants, 
+	    variables and other terms """ 
+        self.name = name 
+        self.terms = terms
+
+    # FIXME: 
+    def __repr__(self):
+	termlist = repr(self.terms[0])
+	for x in range(len(self.terms)):
+		if x != 0:
+			termlist = termlist + ", " + repr(self.terms[x]) 
+        return self.name + "(" + termlist + " ) "
+
+    def __eq__(self,other):
+        return repr(self) == repr(other)
+
+class Function(Term):
+
+    def __init__(self,name,terms):
+	""" terms is a list of terms.
+	    Like in lecture, containing constants, 
+	    variables and other terms """
+        self.name = name 
+        self.terms = terms
+
+    def __repr__(self):
+        return self.name + "(" + repr(self.terms) + " ) "
+
+    def __eq__(self,other):
+        return repr(self) == repr(other)
+
+
+
+class Variable(Term):
 
     def __init__(self, string):
         self.name = string
