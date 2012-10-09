@@ -1,13 +1,18 @@
 from pyparsing import *
 
-class UnaryOperand(object):
+class fofObject(object):
+
+    def negate(self):
+        return UnaryOperand("~", self)
+
+class UnaryOperand(fofObject):
 # Since we only have 1 unary operation we can safely assume it is a negation
     def __init__(self, op, term):
         self.term = term
         self.op = op
 
     def __repr__(self):
-        return "(" + self.op + " " + repr(self.term) + ")"
+        return self.op + repr(self.term)
 
     def __eq__(self,other):
         return repr(self) == repr(other)
@@ -15,7 +20,10 @@ class UnaryOperand(object):
     def __hash__(self):
         return hash(self.op) ^ hash(self.term)
 
-class BinaryOperand(object):
+    def negate(self):
+        return self.term
+
+class BinaryOperand(fofObject):
 
     def __init__(self, op, left_term, right_term):
         self.terms = (left_term, right_term)
@@ -29,13 +37,13 @@ class BinaryOperand(object):
     def __hash__(self):
         return hash(self.op) ^ hash(self.terms)
 
-class Identifier(object):
+class Identifier(fofObject):
 
     def __init__(self, string):
         self.name = string[0]
 
     def __repr__(self):
-        return "<" + self.name + ">"
+        return self.name
 
     def __eq__(self,other):
         return repr(self) == repr(other)
@@ -43,7 +51,7 @@ class Identifier(object):
     def __hash__(self):
         return hash(self.name)
 
-class Quantor(object):
+class Quantor(fofObject):
 
     def __init__(self, string, variables, term):
         self.quantor = string
