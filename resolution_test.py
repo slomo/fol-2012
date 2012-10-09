@@ -20,7 +20,7 @@ class ResolutionTest(unittest.TestCase):
 
         self.assertTrue(r.proof(formula))
 
-    def test_a_oor_not_a(self):
+    def test_a_or_not_a(self):
 	formula = BinaryOperand("|", Identifier("a"), UnaryOperand("~",Identifier("a")))
 	formula = self.negate_and_transform(formula)
 	self.assertTrue(r.proof(formula))
