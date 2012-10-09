@@ -3,7 +3,7 @@ from pyparsing import *
 class Formula(object):
 
     def negate(self):
-        return UnaryOperand("~", self)
+        return UnaryOperator("~", self)
 
     def __eq__(self,other):
         return repr(self) == repr(other)
@@ -68,7 +68,7 @@ class Quantor(Formula):
 
 class Relation(Formula):
 
-    def __init__(self,name,terms):
+    def __init__(self,name,terms=[]):
         """ terms is a list of terms.
         Like in lecture, containing constants,
         variables and other terms """
@@ -91,14 +91,20 @@ class Relation(Formula):
 
 class Function(Term):
 
-    def __init__(self,name,terms):
+    def __init__(self,name,terms=[]):
         """ terms is a list of terms.
         Like in lecture, containing constants,
         variables and other terms """
         self.name = name
         self.terms = terms
 
-    __repr__ = Relation.__repr__
+    def __repr__(self):
+
+        if len(self.terms) == 0:
+            return self.name
+
+        else:
+            return self.name + "(" + ",".join(map(repr,self.terms)) + ")"
 
     def __eq__(self,other):
         return repr(self) == repr(other)
