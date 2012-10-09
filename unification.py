@@ -10,13 +10,13 @@ def mrs_robinson(t1, t2):
 		d1,d2 = get_disagreement_pair(substitute(t1,sigma),substitute(t2,sigma))
 		if isinstance(d1,f.Variable):
 			if occurs_in(d1,d2):
-				break
+				return {}
 			sigma.update({repr(d1):d2})
 		elif isinstance(d2,f.Variable):
 			if occurs_in(d2,d1):
-				break
+				return {}
 			sigma.update({repr(d2):d1})
-		else:	break
+		else:	return {}
 	return sigma 
 
 def multiple_robinson(terms):
