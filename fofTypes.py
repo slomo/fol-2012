@@ -11,7 +11,7 @@ class Term(Formula):
     terms = None    
     op = None
 
-class UnaryOperand(Formula):
+class UnaryOperator(Formula):
 # Since we only have 1 unary operation we can safely assume it is a negation
     def __init__(self, op, terms):
     	# if len(terms) > 1 something went wrong
@@ -31,7 +31,7 @@ class UnaryOperand(Formula):
     def negate(self):
         return self.term
 
-class BinaryOperand(Formula):
+class BinaryOperator(Formula):
 
     def __init__(self, op, left_term, right_term):
         self.terms = (left_term, right_term)
