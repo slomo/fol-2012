@@ -22,13 +22,14 @@ if __name__ == '__main__':
         print(x)
     else :
         #x = from_string("(( not a and b) or q )")
-        x = from_string("fof(ax, axiom, ( ~ a | a ) & ( b | ~ b ) ).")
+        x = from_string("fof(ax, axiom, (![X]: a | b )).")
 
     tree = x[0]["formula"]
     print(tree)
     tree = f.UnaryOperand("~",tree)
-    tree = o.transform(tree)
     print("and transformed ...")
+    tree = o.transform(tree)
+    tree = o.transform(tree)
     print(tree)
     print("and solved")
     print(r.proof(tree))
