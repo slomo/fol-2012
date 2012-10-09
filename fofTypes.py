@@ -5,15 +5,17 @@ class Formula(object):
     def negate(self):
         return UnaryOperand("~", self)
 
+    def __eq__(self,other):
+        return repr(self) == repr(other)
+
 class Term(Formula):
     pass
 
 class UnaryOperand(Formula):
 # Since we only have 1 unary operation we can safely assume it is a negation
-    def __init__(self, op, terms):
+    def __init__(self, op, term):
         # if len(terms) > 1 something went wrong
-        if len(terms) > 1: raise Exception('Too many arguments for unary operator', ' ')
-        self.terms = terms
+        self.term = term
         self.op = op
 
     def __repr__(self):
@@ -48,6 +50,22 @@ class BinaryOperand(Formula):
     def __iter__(self):
         return iter(self.terms)
 
+class Quantor(Formula):
+
+    def __init__(self, op, list_of_vars, term):
+        self.op = op
+        self.variables = frozenset(list_of_vars)
+        self.term = term
+
+    def __repr__(self):
+        return self.op + repr(list(self.variables)) + ":" + repr(self.term)
+
+    def __iter__(self):
+        return iter([self.term])
+
+    def __hash__(self):
+        return hash(self.op) ^ hash(self.term) ^ hash(self.variables)
+
 class Relation(Formula):
 
     def __init__(self,name,terms):
@@ -57,13 +75,13 @@ class Relation(Formula):
         self.name = name
         self.terms = terms
 
-    # FIXME:
     def __repr__(self):
-        termlist = repr(self.terms[0])
-        for x in range(len(self.terms)):
-            if x != 0:
-                termlist = termlist + ", " + repr(self.terms[x])
-        return self.name + "(" + termlist + " ) "
+
+        if len(self.terms) == 0:
+            return self.name
+
+        else:
+            return self.name + "(" + ",".join(map(repr,self.terms)) + ")"
 
     def __eq__(self,other):
         return repr(self) == repr(other)
@@ -80,8 +98,7 @@ class Function(Term):
         self.name = name
         self.terms = terms
 
-    def __repr__(self):
-        return self.name + "(" + repr(self.terms) + " ) "
+    __repr__ = Relation.__repr__
 
     def __eq__(self,other):
         return repr(self) == repr(other)
@@ -97,6 +114,9 @@ class Variable(Term):
 
     def __repr__(self):
         return self.name
+
+    def __hash__(self):
+        return hash(self.name)
 
     def __eq__(self,other):
         return repr(self) == repr(other)

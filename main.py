@@ -21,8 +21,9 @@ if __name__ == '__main__':
         x = from_file(args['file'])
         print(x)
     else :
-        #x = from_string("(( not a and b) or q )")
-        x = from_string("fof(ax, axiom, (![X]: a | b )).")
+        string = "fof(ax, axiom, ?[X]: r(f(a,X),Y,x) )."
+        print("Input was:", string)
+        x = from_string(string)
 
     tree = x[0]["formula"]
     print(tree)
