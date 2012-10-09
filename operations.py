@@ -1,4 +1,3 @@
-import parser
 import fofTypes as f
 
 def rewriteImplyR(node):
@@ -78,9 +77,3 @@ def transform(node):
     else:
         node.terms = transform(node.terms[0]),transform(node.terms[1])
     return node
-
-def unify():
-    pass
-
-def substitute():
-    pass
