@@ -1,79 +1,104 @@
 import fofTypes as f
 
-def rewriteImplyR(node):
-    leftnode = f.UnaryOperand('~', node.terms[0])
-    node = f.BinaryOperand('|', leftnode, node.terms[1])
-    return node
+# helpers for unf transform
 
-def rewriteImplyL(node):
-    rightnode = f.UnaryOperand('~', node.terms[1])
-    node = f.BinaryOperand('|', node.terms[0], rightnode)
-    return node
+def rewrite_binary(binary_formula, left, right, new_op):
+    """ Reweriting a binary operand formula, from its current op to the new op,
+        with negating the left and right fromula, if requested"""
 
-def rewriteEquiv(node):
-    leftnode = f.BinaryOperand('&',node.terms[0],node.terms[1])
-    rightnode = f.BinaryOperand('&',f.UnaryOperand('~',node.terms[0]),f.UnaryOperand('~',node.terms[1]))
-    node = f.BinaryOperand('|',leftnode,rightnode)
-    return node
+    [ left_formula, right_fromula ] = binary_formula.terms
 
-def rewriteNotEquiv(node):
-    leftnode = f.BinaryOperand('&',node.terms[0],f.UnaryOperand('~',node.terms[1]))
-    rightnode = f.BinaryOperand('&',f.UnaryOperand('~',node.terms[0]),node.terms[1])
-    node = f.BinaryOperand('|',leftnode,rightnode)
-    return node
+    if not left:
+       left_formula = left_formula.negate()
 
-def rewriteNotOr(node):
-    leftnode = f.UnaryOperand('~',node.terms[0])
-    rightnode = f.UnaryOperand('~',node.terms[1])
-    node = f.BinaryOperand('&',leftnode,rightnode)
-    return node
+    if not right:
+       right_formula = right_formula.negate()
 
-def rewriteNotAnd(node):
-    leftnode = f.UnaryOperand('~',node.terms[0])
-    rightnode = f.UnaryOperand('~',node.terms[1])
-    node = f.BinaryOperand('|',leftnode,rightnode)
-    return node
+    return f.BinaryOperator(new_op, transform(left_formula), transform(right_formula))
 
-def rewriteNot(node):
-    if isinstance(node.term, f.Identifier):
-        return node
-    if isinstance(node.term, f.UnaryOperand):
-        node = node.term.term
-        return node
-    if isinstance(node.term, f.BinaryOperand):
-        leftnode = f.UnaryOperand('~', node.term.terms[0])
-        rightnode = f.UnaryOperand('~', node.term.terms[1])
-        if node.term.op == '|':
-            node = f.BinaryOperand('&', leftnode, rightnode)
-        elif node.term.op == '&':
-            node = f.BinaryOperand('|', leftnode, rightnode)
-    return node
+def rewrite_quantor(quantor_formula, not_negated, new_quantor):
 
+    if not_negated:
+        new_term = quantor_formula.term.negate()
+    else:
+        new_term = quantor_formula.term
 
+    return f.Quantor(new_quantor, quantor_formula.variables, transform(new_term))
+
+# basic unf transforms
+
+def beta(left, right):
+    return lambda formula: rewrite_binary(formula, left, right, "^")
+
+def alpha(left, right):
+    return lambda formula: rewrite_binary(formula, left, right, "|")
+
+def gamma(not_negated):
+    return lambda fromula: rewrite_quantor(fromula, not_negated, '!')
+
+def delta(not_negated):
+    return lambda fromula: rewrite_quantor(formula, not_negated, '?')
+
+# non unf transforms
+
+def double_negation(unary_formula):
+    return transform(unary_formula.term.term)
+
+def equivalance_rewrite(not_negated = True):
+
+    def inner_function(eq_fromula):
+        [ left_formula, right_fromula] = eq_formula.terms
+        new_fromula = BinaryOp('|', left_formula.negate(), right_formula)
+        if not_negated:
+            return transform(new_formula)
+        else:
+            return transform(new_formula.negate())
+    return inner_function
 
 
 transformations = {
-    '=>' : rewriteImplyR,
-    '<=' : rewriteImplyL,
-    '<=>' : rewriteEquiv,
-    '<~>' : rewriteNotEquiv,
-    '~&' : rewriteNotAnd,
-    '~|' : rewriteNotOr,
-    '~' : rewriteNot,
 
+    '&'     : alpha(True, True),
+    '~|'    : alpha(False, False),
+
+    '|'     : beta(True, True),
+    '~|'    : beta(False, False),
+    '=>'    : beta(False, True),
+    '<='    : beta(True, False),
+
+    '!'     : gamma(True),
+    '?'     : delta(True),
+
+    '~'     : {
+        '|'     : alpha(False, False),
+        '=>'    : alpha(True, False),
+        '<='    : alpha(False, True),
+        '~&'    : alpha(True, True),
+
+        '&'     : beta(False, False),
+        '~|'    : beta(True, True),
+
+        '?'     : gamma(True),
+        '!'     : delta(False),
+
+        '~'     : double_negation,
+
+        '<=>'   : equivalance_rewrite(False),
+        '<~>'   : equivalance_rewrite(),
+    },
+
+    '<=>'   : equivalance_rewrite(),
+    '<~>'   : equivalance_rewrite(False),
 }
 
-def transform(node):
-    if isinstance(node, f.Identifier):
-        return node
-    if node.op in transformations:
-        node = transformations[node.op](node)
-        if isinstance(node, f.Identifier):
-            return node
-        if node.op != '~':
-            node.terms = transform(node.terms[0]),transform(node.terms[1])
-        else:
-            node.term = transform(node.term)
+
+def transform(formula):
+
+    if type(formula) == f.Relation or type(formula.negate()) == f.Relation:
+        return formula
+
+    if type(formula) == f.UnaryOperator and formula.op == "~":
+        return transformations['~'][formula.term.op](formula.term)
+
     else:
-        node.terms = transform(node.terms[0]),transform(node.terms[1])
-    return node
+        return transformations[formula.op](formula)
