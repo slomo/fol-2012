@@ -19,9 +19,9 @@ def rewrite_binary(binary_formula, left, right, new_op):
 def rewrite_quantor(quantor_formula, not_negated, new_quantor):
 
     if not_negated:
-        new_term = quantor_formula.term.negate()
-    else:
         new_term = quantor_formula.term
+    else:
+        new_term = quantor_formula.term.negate()
 
     return f.Quantor(new_quantor, quantor_formula.variables, transform(new_term))
 
@@ -78,7 +78,7 @@ transformations = {
         '&'     : beta(False, False),
         '~|'    : beta(True, True),
 
-        '?'     : gamma(True),
+        '?'     : gamma(False),
         '!'     : delta(False),
 
         '~'     : double_negation,
