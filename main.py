@@ -4,6 +4,7 @@ import argparse as a
 import operations as o
 import resolution as r
 import fofTypes as f
+import unification as u
 
 def from_file(file):
     return tptp.parse_file(file)
@@ -26,10 +27,11 @@ if __name__ == '__main__':
         string = "fof(ax, axiom, ?[X]: r(f(a,X),Y,x) )."
         fof_data = from_string(string)
 
-    formula = fof_data[0]["formula"]
-    print("input formula:",formula)
-    formula = formula.negate()
-    formula = o.transform(formula)
-    print("transform negated formula:", formula)
-    result = r.proof(formula)
-    print("formula holds:", result)
+    for x in fof_data:
+	    formula = x["formula"]
+	    print("input formula:",formula)
+	    formula = formula.negate()
+	    formula = o.transform(formula)
+	    print("transform negated formula:", formula)
+	    result = r.proof(formula)
+	    print("formula holds:", result)

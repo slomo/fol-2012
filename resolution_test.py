@@ -30,6 +30,7 @@ class ResolutionTest(unittest.TestCase):
         return formula
 
 
+
 if __name__ == '__main__':
     unittest.main()
 

@@ -48,7 +48,7 @@ def equivalance_rewrite(not_negated = True):
 
     def inner_function(eq_formula):
         [ left_formula, right_formula] = eq_formula.terms
-        new_formula = BinaryOp('|', left_formula.negate(), right_formula)
+        new_formula = f.BinaryOperator('|', left_formula.negate(), right_formula)
         if not_negated:
             return transform(new_formula)
         else:
