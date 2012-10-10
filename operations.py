@@ -1,6 +1,12 @@
 import fofTypes as f
+import unification as u
+from copy import deepcopy
 
 # helpers for unf transform
+substitutions = {}
+
+def gen_uniq_varname(variable):
+    return variable.name  + "_" + str(id(variable))
 
 def rewrite_binary(binary_formula, left, right, new_op):
     """ Reweriting a binary operand formula, from its current op to the new op,
@@ -18,12 +24,22 @@ def rewrite_binary(binary_formula, left, right, new_op):
 
 def rewrite_quantor(quantor_formula, not_negated, new_quantor):
 
-    if not_negated:
-        new_term = quantor_formula.term
-    else:
-        new_term = quantor_formula.term.negate()
+    global substitutions
+    old = deepcopy(substitutions)
 
-    return f.Quantor(new_quantor, quantor_formula.variables, transform(new_term))
+    for var in quantor_formula.variables:
+        substitutions[var] = gen_uniq_varname(var)
+
+    if not_negated:
+        new_term = transform(quantor_formula.term)
+    else:
+        new_term = transform(quantor_formula.term.negate())
+
+    new_vars = [ u.substitute(var,substitutions) for var in quantor_formula.variables ]
+
+    substitutions = old
+
+    return f.Quantor(new_quantor, new_vars, new_term)
 
 # basic unf transforms
 
@@ -94,11 +110,21 @@ transformations = {
 
 def transform(formula):
 
-    if type(formula) == f.Relation or type(formula.negate()) == f.Relation:
-        return formula
+    if type(formula) == f.Relation:
+        return transform_relation(formula)
+
+    if type(formula.negate()) == f.Relation:
+        return transform_relation(formula.negate())
 
     if type(formula) == f.UnaryOperator and formula.op == "~":
         return transformations['~'][formula.term.op](formula.term)
 
     else:
         return transformations[formula.op](formula)
+
+# transformations on terms
+def transform_relation(relation):
+
+    global substitutions
+    terms = [ u.substitute(term, substitutions) for term in relation ]
+    return f.Relation(relation.name, terms)
