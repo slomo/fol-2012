@@ -1,12 +1,28 @@
 import fofTypes as f
 from copy import deepcopy
 
+class Conjunction(set):
+
+    def __repr__(self):
+        return "<" +  set.__repr__(self)[13:-2] + ">"
+
+class Disjunction(frozenset):
+
+    def __repr__(self):
+       return "[" +  frozenset.__repr__(self)[13:-2] + "]"
+
+    def replace(self, a, b):
+        tmp = [ x for x in self if x != a ]
+        tmp.append(b)
+        return Disjunction(tmp)
+
+
 def is_splittable(form):
 
-    if type(form) == f.BinaryOperand:
+    if type(form) == f.BinaryOperator:
         return True
 
-    if type(form) == f.UnaryOperand  and type(form.term) != f.Identifier:
+    if type(form) == f.UnaryOperator  and type(form.term) != f.Relation:
         return True
 
     return False
@@ -14,20 +30,17 @@ def is_splittable(form):
 
 def proof(formula):
 
-    splittables = set([frozenset([formula])])
-    result = []
+    unsplitted = Conjunction([Disjunction([formula])])
+    splitted = Conjunction([])
 
-    while len(splittables) > 0:
+    while len(unsplitted) > 0:
 
-        disj = splittables.pop()
+        disj = unsplitted.pop()
+        splitted.add(disj)
 
-        [ splittables.add(frozenset(x)) for x in split_any(disj) ]
+        [  unsplitted.add(Disjunction(x)) for x in split_any(disj) ]
 
-        result.append(disj)
-
-    print("splitted formulas", result)
-
-    return resolute(result)
+    return perform_resolution(splitted)
 
 # returns: <[]>
 def split_any(disjunction):
@@ -37,15 +50,13 @@ def split_any(disjunction):
     for formula in disjunction:
         if is_splittable(formula):
 
-            if type(formula) == f.UnaryOperand:
-                if type(formula.term) == f.UnaryOperand:
-                    d = list(disjunction)
-                    d.remove(formula)
-                    d.append(formula.term.term)
+            if type(formula) == f.UnaryOperator:
+                if type(formula.term) == f.UnaryOperator:
+                    result_set.append(disjunction.replace(fromular,fromuarl.term.term))
                     break
 
             #alpha
-            if type(formula) == f.BinaryOperand and formula.op == "&":
+            if type(formula) == f.BinaryOperator and formula.op == "&":
                 d = list(disjunction)
                 d.remove(formula)
                 d1 = deepcopy(d)
@@ -57,7 +68,7 @@ def split_any(disjunction):
                 break
 
             # is beta
-            if type(formula) == f.BinaryOperand and formula.op == "|":
+            if type(formula) == f.BinaryOperator and formula.op == "|":
                 d = list(disjunction)
                 d.remove(formula)
                 d.append(formula.terms[0])
@@ -71,39 +82,64 @@ def split_any(disjunction):
 def is_tautology(d):
 
     for q in d:
-        negate = f.UnaryOperand("~",q)
+        negate = f.UnaryOperator("~",q)
         if negate in d:
             return True
     return False
 
 
+def negate(elem):
+    # check weather i look for ~Z or Z
+    if type(elem) is f.UnaryOperator:
+        return elem.term
+    else:
+        return f.UnaryOperator("~",elem)
 
-def resolute(knf):
 
+def resolute_any(disj, knf):
+
+    results = set([])
+
+    for other_disj in knf:
+
+        results = results.union(resolute(disj, other_disj))
+
+    return results
+
+def resolute(disj_a, disj_b):
+
+    result_set = set([])
+
+    for formula in disj_a:
+
+        negate_formula = formula.negate()
+
+        if negate_formula in disj_b:
+            d = list(disj_b)
+            d.remove(negate_formula)
+            d.extend(disj_a)
+            d.remove(formula)
+
+            if not is_tautology(d):
+                print("Resoluting",disj_a,"with",disj_b,"to",d)
+                result_set.add(Disjunction(d))
+
+    return result_set
+
+
+def perform_resolution(knf):
+    knf = list(knf)
     for disj in knf:
 
-        for elem in disj:
+        disjs = resolute_any(disj, deepcopy(knf))
 
-            # check weather i look for ~Z or Z
-            if type(elem) is f.UnaryOperand:
-                target = elem.term
-            else:
-                target = f.UnaryOperand("~",elem)
+        for resolutes in disjs:
 
-            for other_disj in deepcopy(knf):
-                if target in other_disj:
+            if len(resolutes) == 0:
+                return True
 
-                    d = list(other_disj)
-                    d.remove(target)
-                    d.extend(disj)
-                    d.remove(elem)
-
-                    d = frozenset(d)
-
-                    if len(d) == 0:
-                        return True
-                    if not (d in knf) and not is_tautology(d):
-                        print("Resoluting",disj,"with",other_disj,"to",d)
-                        knf.append(d)
+            if not resolutes in knf:
+                knf.append(resolutes)
 
     return False
+
