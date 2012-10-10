@@ -45,13 +45,17 @@ def substitute(term, sigma):
         return sigma[term]
 
     else:
-        if type(term) == f.Function or type(term) == f.Relation:
-
+        if type(term) == f.Variable:
+            return term
+        else:
             new_terms = [ substitute(child, sigma) for child in term ]
 
-            return f.Function(term.name, new_terms)
-        else:
-            return term
+            if type(term) == f.Function:
+                return f.Function(term.name, new_terms)
+
+            elif type(term) == f.Relation:
+                return f.Relation(term.name, new_terms)
+
 
 def get_disagreement_pair(t1, t2):
     """ gets the first unequal subterms of t1 and t2.
