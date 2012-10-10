@@ -1,5 +1,8 @@
 import fofTypes as f
 from copy import deepcopy
+import unification as u
+
+boundvars = []
 
 class Conjunction(set):
 
@@ -17,6 +20,15 @@ class Disjunction(frozenset):
         return Disjunction(tmp)
 
 
+
+def gen_free():
+    i = 0
+    while(True):
+        var = "free"+str(i)
+        if var not in boundvars:
+            yield var
+
+
 def is_splittable(form):
 
     if type(form) == f.BinaryOperator:
@@ -25,6 +37,8 @@ def is_splittable(form):
     if type(form) == f.UnaryOperator  and type(form.term) != f.Relation:
         return True
 
+    if type(form) == f.Quantor:
+        return True
     return False
 
 
@@ -32,6 +46,7 @@ def proof(formula):
 
     unsplitted = Conjunction([Disjunction([formula])])
     splitted = Conjunction([])
+
 
     while len(unsplitted) > 0:
 
@@ -49,12 +64,6 @@ def split_any(disjunction):
 
     for formula in disjunction:
         if is_splittable(formula):
-
-            if type(formula) == f.UnaryOperator:
-                if type(formula.term) == f.UnaryOperator:
-                    result_set.append(disjunction.replace(fromular,fromuarl.term.term))
-                    break
-
             #alpha
             if type(formula) == f.BinaryOperator and formula.op == "&":
                 d = list(disjunction)
@@ -76,8 +85,22 @@ def split_any(disjunction):
                 result_set.append(d)
                 break
 
-    return result_set
+            if type(formula) == f.Quantor and formula.op == '!':
+                d = list(disjunction)
+                d.remove(formula)
+                rewrite = {}
+                for var in formula.variables:
+                    rewrite[var] = gen_free().__next__()
+                d = u.substitute(formula.term, rewrite)
+                print(d)
+                d1 = deepcopy(d)
+                result_set.append(d1)
+                break
 
+            if type(formula) == f.Quantor and formula.op == '?':
+                pass
+
+    return result_set
 
 def is_tautology(d):
 
@@ -142,4 +165,3 @@ def perform_resolution(knf):
                 knf.append(resolutes)
 
     return False
-
