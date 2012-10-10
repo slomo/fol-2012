@@ -89,6 +89,14 @@ class Relation(Formula):
     def __iter__(self):
         return iter(self.terms)
 
+    def __hash__(self):
+        h = hash(self.name)
+
+        for t in self.terms:
+            h ^= hash(t)
+
+        return h
+
 class Function(Term):
 
     def __init__(self,name,terms=[]):
@@ -111,6 +119,14 @@ class Function(Term):
 
     def __iter__(self):
         return iter(self.terms)
+
+    def __hash__(self):
+        h = hash(self.name)
+
+        for t in self.terms:
+            h ^= hash(t)
+
+        return h
 
 
 class Variable(Term):
