@@ -11,6 +11,8 @@ class Conjunction(set):
 
 class Disjunction(frozenset):
 
+    free_vars = set()
+
     def __repr__(self):
        return "[" +  frozenset.__repr__(self)[13:-2] + "]"
 
@@ -24,9 +26,21 @@ class Disjunction(frozenset):
 def gen_free():
     i = 0
     while(True):
-        var = "free"+str(i)
+        i += 1
+        var = "v"+str(i)
         if var not in boundvars:
+            boundvars.append(var)
             yield var
+
+def gen_free_func():
+    i = 0
+    while(True):
+        i += 1
+        var = "f"+str(i)
+        if var not in boundvars:
+            boundvars.append(var)
+            yield var
+
 
 
 def is_splittable(form):
@@ -64,6 +78,7 @@ def split_any(disjunction):
 
     for formula in disjunction:
         if is_splittable(formula):
+            print("formula: ", formula, " is splittable")
             #alpha
             if type(formula) == f.BinaryOperator and formula.op == "&":
                 d = list(disjunction)
@@ -84,7 +99,8 @@ def split_any(disjunction):
                 d.append(formula.terms[1])
                 result_set.append(d)
                 break
-
+            
+            # is gamma
             if type(formula) == f.Quantor and formula.op == '!':
                 d = list(disjunction)
                 d.remove(formula)
@@ -93,14 +109,26 @@ def split_any(disjunction):
                     t = gen_free().__next__()
                     t = f.Variable(t)
                     rewrite[var] = t
+                    disjunction.free_vars.add(t)
                 d = u.substitute(formula.term, rewrite)
-                print(d)
                 d1 = deepcopy(d)
                 result_set.append(d1)
                 break
 
+            # is delta
             if type(formula) == f.Quantor and formula.op == '?':
-                pass
+                d = list(disjunction)
+                d.remove(formula)
+                rewrite = {}
+                for var in formula.variables:
+                    t = gen_free_func().__next__()
+                    t = f.Function(t,list(disjunction.free_vars))
+                    rewrite[var] = t
+                    disjunction.free_vars.add(t)
+                d = u.substitute(formula.term, rewrite)
+                d1 = deepcopy(d)
+                result_set.append(d1)
+                break
 
     return result_set
 
@@ -136,7 +164,6 @@ def resolute(disj_a, disj_b):
     result_set = set([])
 
     for formula in disj_a:
-
         negate_formula = formula.negate()
 
         if negate_formula in disj_b:

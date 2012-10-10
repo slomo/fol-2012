@@ -24,7 +24,7 @@ if __name__ == '__main__':
     elif args['formula']:
         fof_data = from_string(args['formula'])
     else :
-        string = "fof(ax, axiom, ?[X]: r(f(a,X),Y,x) )."
+        string = "fof(ax, axiom, ![X]: r(X) => ?[Y]:r(Y) )."
         fof_data = from_string(string)
 
     for x in fof_data:
