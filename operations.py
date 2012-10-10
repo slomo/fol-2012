@@ -6,7 +6,7 @@ def rewrite_binary(binary_formula, left, right, new_op):
     """ Reweriting a binary operand formula, from its current op to the new op,
         with negating the left and right fromula, if requested"""
 
-    [ left_formula, right_fromula ] = binary_formula.terms
+    [ left_formula, right_formula ] = binary_formula.terms
 
     if not left:
        left_formula = left_formula.negate()
@@ -27,10 +27,10 @@ def rewrite_quantor(quantor_formula, not_negated, new_quantor):
 
 # basic unf transforms
 
-def beta(left, right):
-    return lambda formula: rewrite_binary(formula, left, right, "^")
-
 def alpha(left, right):
+    return lambda formula: rewrite_binary(formula, left, right, "&")
+
+def beta(left, right):
     return lambda formula: rewrite_binary(formula, left, right, "|")
 
 def gamma(not_negated):
