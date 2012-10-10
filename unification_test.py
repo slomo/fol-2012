@@ -7,7 +7,6 @@ from fofTypes import *
 class UnificationTest(unittest.TestCase):
 
     def test_mrs_robinson(self):
-
         f1 = Function("f",[Variable("X")])
         f2 = Function("f",[Variable("Y")])
         sigma = u.mrs_robinson(f1,f2)
@@ -22,11 +21,12 @@ class UnificationTest(unittest.TestCase):
         liste = [f1,f2]
         sigma = u.multiple_robinson(liste)
         newlist = []
+
         for x in liste:
             newlist.append(u.substitute(x,sigma))
-        print("newlist", newlist)
+
         for x in newlist:
-            if x != f2:
+            if not x == f2:
                 print("x: ", x, "f2", f2)
                 self.assertTrue(False)
         self.assertTrue(True)
