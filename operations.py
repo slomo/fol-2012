@@ -4,7 +4,7 @@ import fofTypes as f
 
 def rewrite_binary(binary_formula, left, right, new_op):
     """ Reweriting a binary operand formula, from its current op to the new op,
-        with negating the left and right fromula, if requested"""
+        with negating the left and right formula, if requested"""
 
     [ left_formula, right_formula ] = binary_formula.terms
 
@@ -34,10 +34,10 @@ def beta(left, right):
     return lambda formula: rewrite_binary(formula, left, right, "|")
 
 def gamma(not_negated):
-    return lambda fromula: rewrite_quantor(fromula, not_negated, '!')
+    return lambda formula: rewrite_quantor(formula, not_negated, '!')
 
 def delta(not_negated):
-    return lambda fromula: rewrite_quantor(formula, not_negated, '?')
+    return lambda formula: rewrite_quantor(formula, not_negated, '?')
 
 # non unf transforms
 
@@ -46,9 +46,9 @@ def double_negation(unary_formula):
 
 def equivalance_rewrite(not_negated = True):
 
-    def inner_function(eq_fromula):
-        [ left_formula, right_fromula] = eq_formula.terms
-        new_fromula = BinaryOp('|', left_formula.negate(), right_formula)
+    def inner_function(eq_formula):
+        [ left_formula, right_formula] = eq_formula.terms
+        new_formula = BinaryOp('|', left_formula.negate(), right_formula)
         if not_negated:
             return transform(new_formula)
         else:
