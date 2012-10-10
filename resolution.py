@@ -90,7 +90,9 @@ def split_any(disjunction):
                 d.remove(formula)
                 rewrite = {}
                 for var in formula.variables:
-                    rewrite[var] = gen_free().__next__()
+                    t = gen_free().__next__()
+                    t = f.Variable(t)
+                    rewrite[var] = t
                 d = u.substitute(formula.term, rewrite)
                 print(d)
                 d1 = deepcopy(d)
