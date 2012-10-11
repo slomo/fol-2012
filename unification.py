@@ -40,6 +40,8 @@ def substitute(term, sigma):
     """ sigma is a substition containing representations of
         a tree as the keys """
 
+    #import pdb
+    #pdb.set_trace()
     if term in sigma:
         return sigma[term]
 
@@ -57,9 +59,14 @@ def substitute(term, sigma):
             elif type(term) == f.BinaryOperator:
                 [t1, t2] = new_terms
                 return f.BinaryOperator(term.op, t1, t2)
+
             elif type(term) == f.UnaryOperator:
                 [ t1 ] = new_terms
                 return f.UnaryOperator("~", t1)
+
+            elif type(term) == f.Quantor:
+                [ t1 ] = new_terms
+                return f.Quantor(term.op, term.variables, t1)
 
 def get_disagreement_pair(t1, t2):
     """ gets the first unequal subterms of t1 and t2.
@@ -68,8 +75,15 @@ def get_disagreement_pair(t1, t2):
     if (t1.name != t2.name):
         return t1,t2
     elif type(t1) != f.Variable and type(t2) != f.Variable:
+
+        if len(t1.terms) != len(t2.terms):
+            return t1, t2
+
         for counter in range(len(t1.terms)):
-            return get_disagreement_pair(t1.terms[counter], t2.terms[counter])
+            dis_pair = get_disagreement_pair(t1.terms[counter], t2.terms[counter])
+
+            if dis_pair != (None, None):
+                return dis_pair
     return  None,None
 
 def occurs_in(t1, t2):

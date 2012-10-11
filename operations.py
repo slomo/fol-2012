@@ -1,12 +1,15 @@
 import fofTypes as f
 import unification as u
 from copy import deepcopy
+from itertools import count
+
+counter = count()
 
 # helpers for unf transform
 substitutions = {}
 
 def gen_uniq_varname(variable):
-    return variable.name  + "_" + str(id(variable))
+    return variable.name + str(next(counter))
 
 def rewrite_binary(binary_formula, left, right, new_op):
     """ Reweriting a binary operand formula, from its current op to the new op,
@@ -28,7 +31,7 @@ def rewrite_quantor(quantor_formula, not_negated, new_quantor):
     old = deepcopy(substitutions)
 
     for var in quantor_formula.variables:
-        substitutions[var] = gen_uniq_varname(var)
+        substitutions[var] = f.Variable(gen_uniq_varname(var))
 
     if not_negated:
         new_term = transform(quantor_formula.term)
@@ -64,7 +67,11 @@ def equivalance_rewrite(not_negated = True):
 
     def inner_function(eq_formula):
         [ left_formula, right_formula] = eq_formula.terms
-        new_formula = f.BinaryOperator('|', left_formula.negate(), right_formula)
+
+        new_formula = f.BinaryOperator('|',
+                f.BinaryOperator('&', left_formula, right_formula),
+                f.BinaryOperator('&', left_formula.negate(), right_formula.negate()))
+
         if not_negated:
             return transform(new_formula)
         else:

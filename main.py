@@ -26,12 +26,12 @@ if __name__ == '__main__':
     else :
         string = "fof(ax, axiom, ![X]: r(X) => ?[Y]:r(Y) )."
         fof_data = from_string(string)
-
-    for x in fof_data:
-	    formula = x["formula"]
-	    print("input formula:",formula)
-	    formula = formula.negate()
-	    formula = o.transform(formula)
-	    print("transform negated formula:", formula)
-	    result = r.proof(formula)
-	    print("formula holds:", result)
+    import pprint
+    pprint.pprint(fof_data)
+    formula = fof_data[0]["formula"]
+    print("input formula:",formula)
+    formula = formula.negate()
+    formula = o.transform(formula)
+    print("transform negated formula:", formula)
+    result = r.proof(formula)
+    print("formula holds:", result)

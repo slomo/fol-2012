@@ -4,6 +4,8 @@ from copy import deepcopy
 import unification as u
 
 boundvars = []
+memo = {}
+
 
 class Conjunction(set):
 
@@ -59,6 +61,7 @@ def is_splittable(form):
 
 def proof(formula):
 
+    print('about to be rejected', formula)
     unsplitted = Conjunction([Disjunction([formula])])
     splitted = Conjunction([])
 
@@ -70,15 +73,12 @@ def proof(formula):
         if all([ type(x) == f.Relation or type(x.negate()) == f.Relation for x in disj]):
             splitted.add(disj)
 
-        print("split",split_any(disj))
         [ unsplitted.add(Disjunction(x)) for x in split_any(disj) ]
-
-        print("unsplitted", disj)
 
     # Phase 2
     knf = splitted
 
-    iterations = 10
+    iterations = 300
 
     print("atomics",knf)
 
@@ -174,12 +174,14 @@ def resolute_all(knf):
 
 def resolute(disj_a, disj_b):
     result_set = set([])
-
+    temp = deepcopy(disj_a),deepcopy(disj_b)
+    if temp in memo:
+            return memo[temp]
     for formula in disj_a:
         for other_formula in disj_b:
 
             if type(other_formula) == f.UnaryOperator and type(formula) == f.Relation:
-#                pdb.set_trace()
+                #pdb.set_trace()
                 sigma = u.mrs_robinson(other_formula.term, formula)
                 list_disj_a = []
                 list_disj_b = []
@@ -214,7 +216,7 @@ def resolute(disj_a, disj_b):
                     result_set.add(resolvente)
                 else:
                     print("Result is tautology (",disj_a,disj_a,")",resolvente)
-
+    memo[temp]=result_set
     return result_set
 
 def s_wrapper(formula, sups):
