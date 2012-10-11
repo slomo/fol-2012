@@ -114,7 +114,7 @@ def transform(formula):
         return transform_relation(formula)
 
     if type(formula.negate()) == f.Relation:
-        return transform_relation(formula.negate())
+        return (transform_relation(formula.negate())).negate()
 
     if type(formula) == f.UnaryOperator and formula.op == "~":
         return transformations['~'][formula.term.op](formula.term)
