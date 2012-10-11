@@ -1,4 +1,5 @@
 import fofTypes as f
+import pdb
 from copy import deepcopy
 import unification as u
 
@@ -77,7 +78,7 @@ def proof(formula):
     # Phase 2
     knf = splitted
 
-    iterations = 300
+    iterations = 10
 
     print("atomics",knf)
 
@@ -132,7 +133,7 @@ def split_any(disjunction):
                     t = f.Variable(t)
                     rewrite[var] = t
                     disjunction.free_vars.add(t)
-                d.append(s_wrapper(formula.term, rewrite))
+                d.append(u.substitute(formula.term, rewrite))
                 result_set.append(d)
                 break
 
@@ -146,7 +147,7 @@ def split_any(disjunction):
                     t = f.Function(t,list(disjunction.free_vars))
                     rewrite[var] = t
                     disjunction.free_vars.add(t)
-                d.append(s_wrapper(formula.term, rewrite))
+                d.append(u.substitute(formula.term, rewrite))
                 result_set.append(d)
                 break
 
@@ -172,15 +173,14 @@ def resolute_all(knf):
     return results
 
 def resolute(disj_a, disj_b):
-
     result_set = set([])
 
     for formula in disj_a:
         for other_formula in disj_b:
 
             if type(other_formula) == f.UnaryOperator and type(formula) == f.Relation:
+#                pdb.set_trace()
                 sigma = u.mrs_robinson(other_formula.term, formula)
-
                 list_disj_a = []
                 list_disj_b = []
 
@@ -195,25 +195,30 @@ def resolute(disj_a, disj_b):
 
 
                 # difficult case resolution with unification  possible
-                elif sigma:
-
+                elif len(sigma) > 0:
                     list_disj_a = [ s_wrapper(x, sigma) for x in disj_a if not x is formula ]
                     list_disj_b = [ s_wrapper(x, sigma) for x in disj_b if not x is other_formula ]
 
+                else:
+                    print("Can not resolute", disj_a,"with",disj_b)
+                    continue
+
                 resolvente = Disjunction(list_disj_a + list_disj_b)
 
+                #if repr(list_disj_a) == "[~r(v4)]":
+                #    pdb.set_trace()
+
                 if not is_tautology(resolvente):
+                    print("sigma is ", sigma)
                     print("Resoluting",disj_a,"with",disj_b,"to",resolvente)
                     result_set.add(resolvente)
-
-            else:
-                continue
+                else:
+                    print("Result is tautology (",disj_a,disj_a,")",resolvente)
 
     return result_set
 
-
 def s_wrapper(formula, sups):
-
+    print(type(formula))
     if type(formula) == f.Relation:
         return u.substitute(formula, sups)
     elif type(formula) == f.UnaryOperator and type(formula.term) == f.Relation:
