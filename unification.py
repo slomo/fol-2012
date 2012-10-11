@@ -14,26 +14,37 @@ def mrs_robinson(t1, t2):
             return {}
         if isinstance(d1,f.Variable):
             if occurs_in(d1,d2):
-                return {}
+                return None
             sigma.update({d1:d2})
         elif isinstance(d2,f.Variable):
             if occurs_in(d2,d1):
-                return {}
+                return None
 
             sigma.update({d2:d1})
-        else:   return {}
+        else:
+            return None
     return sigma
 
-def multiple_robinson(terms):
+def multiple_robinson(disj):
     """ Returns the most general unifier for this list of terms. """
     sigma = {}
-    for x in terms:
-        if type(x) != f.Function:
-            return sigma
-    for counter in range(len(terms)):
-        if counter != (len(terms)-1):
-            sigma = mrs_robinson(substitute(terms[counter],sigma),
-                             substitute(terms[counter+1],sigma))
+    #for x in terms:
+    #     if type(x) != f.Function:
+    #        return sigma
+
+    for counter in range(len(disj)-1):
+        cur_sigma = mrs_robinson(substitute(disj[counter],sigma),
+                         substitute(disj[counter+1],sigma))
+
+        if cur_sigma == None:
+            return None
+        else:
+            print("aaa",cur_sigma)
+            print(sigma)
+            sigma.update(cur_sigma)
+            print(sigma)
+
+
     return sigma
 
 def substitute(term, sigma):

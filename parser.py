@@ -38,7 +38,7 @@ def var_handler(s, l, t):
 
 
 fof_const_alphabet = "_abcdefghijklmnopqrstuvwxzy"
-fof_variable_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXZY"
+fof_variable_alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXZY"
 
 fof_const_name = pp.Word(fof_const_alphabet)
 fof_var_name = pp.Word(fof_variable_alphabet)
