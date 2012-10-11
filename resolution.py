@@ -65,11 +65,34 @@ def proof(formula):
     while len(unsplitted) > 0:
 
         disj = unsplitted.pop()
-        splitted.add(disj)
 
-        [  unsplitted.add(Disjunction(x)) for x in split_any(disj) ]
+        if all([ type(x) == f.Relation or type(x.negate()) == f.Relation for x in disj]):
+            splitted.add(disj)
 
-    return perform_resolution(splitted)
+        print("split",split_any(disj))
+        [ unsplitted.add(Disjunction(x)) for x in split_any(disj) ]
+
+        print("unsplitted", disj)
+
+    # Phase 2
+    knf = splitted
+
+    iterations = 300
+
+    print("atomics",knf)
+
+    for i in range(iterations):
+
+        resolvents = resolute_all(deepcopy(knf))
+
+        for disj in resolvents:
+
+            if len(disj) == 0:
+                return True
+
+            knf.add(disj)
+
+    return None
 
 # returns: <[]>
 def split_any(disjunction):
@@ -78,7 +101,6 @@ def split_any(disjunction):
 
     for formula in disjunction:
         if is_splittable(formula):
-            print("formula: ", formula, " is splittable")
             #alpha
             if type(formula) == f.BinaryOperator and formula.op == "&":
                 d = list(disjunction)
@@ -99,7 +121,7 @@ def split_any(disjunction):
                 d.append(formula.terms[1])
                 result_set.append(d)
                 break
-            
+
             # is gamma
             if type(formula) == f.Quantor and formula.op == '!':
                 d = list(disjunction)
@@ -110,9 +132,8 @@ def split_any(disjunction):
                     t = f.Variable(t)
                     rewrite[var] = t
                     disjunction.free_vars.add(t)
-                d = u.substitute(formula.term, rewrite)
-                d1 = deepcopy(d)
-                result_set.append(d1)
+                d.append(s_wrapper(formula.term, rewrite))
+                result_set.append(d)
                 break
 
             # is delta
@@ -125,9 +146,8 @@ def split_any(disjunction):
                     t = f.Function(t,list(disjunction.free_vars))
                     rewrite[var] = t
                     disjunction.free_vars.add(t)
-                d = u.substitute(formula.term, rewrite)
-                d1 = deepcopy(d)
-                result_set.append(d1)
+                d.append(s_wrapper(formula.term, rewrite))
+                result_set.append(d)
                 break
 
     return result_set
@@ -141,21 +161,13 @@ def is_tautology(d):
     return False
 
 
-def negate(elem):
-    # check weather i look for ~Z or Z
-    if type(elem) is f.UnaryOperator:
-        return elem.term
-    else:
-        return f.UnaryOperator("~",elem)
-
-
-def resolute_any(disj, knf):
+def resolute_all(knf):
 
     results = set([])
 
-    for other_disj in knf:
-
-        results = results.union(resolute(disj, other_disj))
+    for disj in knf:
+        for other_disj in knf:
+            results.update(resolute(disj, other_disj))
 
     return results
 
@@ -164,33 +176,49 @@ def resolute(disj_a, disj_b):
     result_set = set([])
 
     for formula in disj_a:
-        negate_formula = formula.negate()
+        for other_formula in disj_b:
 
-        if negate_formula in disj_b:
-            d = list(disj_b)
-            d.remove(negate_formula)
-            d.extend(disj_a)
-            d.remove(formula)
+            if type(other_formula) == f.UnaryOperator and type(formula) == f.Relation:
+                sigma = u.mrs_robinson(other_formula.term, formula)
 
-            if not is_tautology(d):
-                print("Resoluting",disj_a,"with",disj_b,"to",d)
-                result_set.add(Disjunction(d))
+                list_disj_a = []
+                list_disj_b = []
+
+                # simple case resolution possible
+                if other_formula.term == formula:
+
+                    list_disj_a = list(disj_a)
+                    list_disj_b = list(disj_b)
+
+                    list_disj_a.remove(formula)
+                    list_disj_b.remove(other_formula)
+
+
+                # difficult case resolution with unification  possible
+                elif sigma:
+
+                    list_disj_a = [ s_wrapper(x, sigma) for x in disj_a if not x is formula ]
+                    list_disj_b = [ s_wrapper(x, sigma) for x in disj_b if not x is other_formula ]
+
+                resolvente = Disjunction(list_disj_a + list_disj_b)
+
+                if not is_tautology(resolvente):
+                    print("Resoluting",disj_a,"with",disj_b,"to",resolvente)
+                    result_set.add(resolvente)
+
+            else:
+                continue
 
     return result_set
 
 
-def perform_resolution(knf):
-    knf = list(knf)
-    for disj in knf:
+def s_wrapper(formula, sups):
 
-        disjs = resolute_any(disj, deepcopy(knf))
+    if type(formula) == f.Relation:
+        return u.substitute(formula, sups)
+    elif type(formula) == f.UnaryOperator and type(formula.term) == f.Relation:
+        return f.UnaryOperator("~", u.substitute(formula.term, sups))
+    else:
+        assert(False)
 
-        for resolutes in disjs:
 
-            if len(resolutes) == 0:
-                return True
-
-            if not resolutes in knf:
-                knf.append(resolutes)
-
-    return False
