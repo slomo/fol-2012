@@ -1,13 +1,12 @@
 import fofTypes as f
 from copy import deepcopy
 
+
 def mrs_robinson(t1, t2):
     """ Tries to unifiy t1 to t2, which is t1 sigma = t2.
         If the algorithm fails to find a unification,
             an empty sigma is returned."""
     sigma = {}
-    if type(t1) != f.Function or type(t2) != f.Function:
-        return sigma
 
     while not substitute(t1,sigma) == substitute(t2,sigma):
         d1,d2 = get_disagreement_pair(substitute(t1,sigma),substitute(t2,sigma))
@@ -49,13 +48,18 @@ def substitute(term, sigma):
             return term
         else:
             new_terms = [ substitute(child, sigma) for child in term ]
-
             if type(term) == f.Function:
                 return f.Function(term.name, new_terms)
 
             elif type(term) == f.Relation:
                 return f.Relation(term.name, new_terms)
 
+            elif type(term) == f.BinaryOperator:
+                [t1, t2] = new_terms
+                return f.BinaryOperator(term.op, t1, t2)
+            elif type(term) == f.UnaryOperator:
+                [ t1 ] = new_terms
+                return f.UnaryOperator("~", t1)
 
 def get_disagreement_pair(t1, t2):
     """ gets the first unequal subterms of t1 and t2.
@@ -63,7 +67,7 @@ def get_disagreement_pair(t1, t2):
     # FIXME: Doesn't check on free variable occurences
     if (t1.name != t2.name):
         return t1,t2
-    elif type(t1) == f.Function and type(t2) == f.Function:
+    elif type(t1) != f.Variable and type(t2) != f.Variable:
         for counter in range(len(t1.terms)):
             return get_disagreement_pair(t1.terms[counter], t2.terms[counter])
     return  None,None
