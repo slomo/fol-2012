@@ -22,16 +22,25 @@ if __name__ == '__main__':
     if args['file']:
         fof_data = from_file(args['file'])
     elif args['formula']:
-        fof_data = from_string(args['formula'])
+        fof_data = from_string("fof(ax,axiom," + args['formula'] + ").")
     else :
         string = "fof(ax, axiom, ![X]: r(X) => ?[Y]:r(Y) )."
         fof_data = from_string(string)
+    import pprint
+    pprint.pprint(fof_data)
+    org_formula = fof_data[0]["formula"]
+    print("input formula:",org_formula)
+    formula = org_formula.negate()
+    formula = o.transform(formula)
+    print("transform negated formula:", formula)
+    result = r.proof(formula)
 
-    for x in fof_data:
-	    formula = x["formula"]
-	    print("input formula:",formula)
-	    formula = formula.negate()
-	    formula = o.transform(formula)
-	    print("transform negated formula:", formula)
-	    result = r.proof(formula)
-	    print("formula holds:", result)
+    if result:
+        print("formula is theorem")
+    else:
+        formula = o.transform(org_formula)
+        if r.proof(formula):
+            print("formula is counter theorem")
+        else:
+            print("Unable")
+

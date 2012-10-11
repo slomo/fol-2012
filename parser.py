@@ -37,8 +37,8 @@ def var_handler(s, l, t):
     return Variable(t[0])
 
 
-fof_const_alphabet = "abcdefghijklmnopqrstuvwxzy"
-fof_variable_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXZY"
+fof_const_alphabet = "_abcdefghijklmnopqrstuvwxzy"
+fof_variable_alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXZY"
 
 fof_const_name = pp.Word(fof_const_alphabet)
 fof_var_name = pp.Word(fof_variable_alphabet)
@@ -76,7 +76,7 @@ dot = Suppress(".")
 tptp = OneOrMore(
         Group(pp.oneOf("fof") + Suppress("(") +
             Word(alphanums) + komma  +
-           pp.oneOf("axiom theorem") + komma +
+           pp.oneOf("axiom theorem conjecture") + komma +
             fof_expr + Suppress(")") +  dot))
 
 

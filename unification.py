@@ -1,13 +1,12 @@
 import fofTypes as f
 from copy import deepcopy
 
+
 def mrs_robinson(t1, t2):
     """ Tries to unifiy t1 to t2, which is t1 sigma = t2.
         If the algorithm fails to find a unification,
             an empty sigma is returned."""
     sigma = {}
-    if type(t1) != f.Function or type(t2) != f.Function:
-        return sigma
 
     while not substitute(t1,sigma) == substitute(t2,sigma):
         d1,d2 = get_disagreement_pair(substitute(t1,sigma),substitute(t2,sigma))
@@ -15,32 +14,45 @@ def mrs_robinson(t1, t2):
             return {}
         if isinstance(d1,f.Variable):
             if occurs_in(d1,d2):
-                return {}
+                return None
             sigma.update({d1:d2})
         elif isinstance(d2,f.Variable):
             if occurs_in(d2,d1):
-                return {}
+                return None
 
             sigma.update({d2:d1})
-        else:   return {}
+        else:
+            return None
     return sigma
 
-def multiple_robinson(terms):
+def multiple_robinson(disj):
     """ Returns the most general unifier for this list of terms. """
     sigma = {}
-    for x in terms:
-        if type(x) != f.Function:
-            return sigma
-    for counter in range(len(terms)):
-        if counter != (len(terms)-1):
-            sigma = mrs_robinson(substitute(terms[counter],sigma),
-                             substitute(terms[counter+1],sigma))
+    #for x in terms:
+    #     if type(x) != f.Function:
+    #        return sigma
+
+    for counter in range(len(disj)-1):
+        cur_sigma = mrs_robinson(substitute(disj[counter],sigma),
+                         substitute(disj[counter+1],sigma))
+
+        if cur_sigma == None:
+            return None
+        else:
+            print("aaa",cur_sigma)
+            print(sigma)
+            sigma.update(cur_sigma)
+            print(sigma)
+
+
     return sigma
 
 def substitute(term, sigma):
     """ sigma is a substition containing representations of
         a tree as the keys """
 
+    #import pdb
+    #pdb.set_trace()
     if term in sigma:
         return sigma[term]
 
@@ -49,13 +61,23 @@ def substitute(term, sigma):
             return term
         else:
             new_terms = [ substitute(child, sigma) for child in term ]
-
             if type(term) == f.Function:
                 return f.Function(term.name, new_terms)
 
             elif type(term) == f.Relation:
                 return f.Relation(term.name, new_terms)
 
+            elif type(term) == f.BinaryOperator:
+                [t1, t2] = new_terms
+                return f.BinaryOperator(term.op, t1, t2)
+
+            elif type(term) == f.UnaryOperator:
+                [ t1 ] = new_terms
+                return f.UnaryOperator("~", t1)
+
+            elif type(term) == f.Quantor:
+                [ t1 ] = new_terms
+                return f.Quantor(term.op, term.variables, t1)
 
 def get_disagreement_pair(t1, t2):
     """ gets the first unequal subterms of t1 and t2.
@@ -63,9 +85,16 @@ def get_disagreement_pair(t1, t2):
     # FIXME: Doesn't check on free variable occurences
     if (t1.name != t2.name):
         return t1,t2
-    elif type(t1) == f.Function and type(t2) == f.Function:
+    elif type(t1) != f.Variable and type(t2) != f.Variable:
+
+        if len(t1.terms) != len(t2.terms):
+            return t1, t2
+
         for counter in range(len(t1.terms)):
-            return get_disagreement_pair(t1.terms[counter], t2.terms[counter])
+            dis_pair = get_disagreement_pair(t1.terms[counter], t2.terms[counter])
+
+            if dis_pair != (None, None):
+                return dis_pair
     return  None,None
 
 def occurs_in(t1, t2):
