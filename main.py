@@ -5,6 +5,7 @@ import operations as o
 import resolution as r
 import fofTypes as f
 import unification as u
+import loader as l
 
 def from_file(file):
     return tptp.parse_file(file)
@@ -16,6 +17,7 @@ if __name__ == '__main__':
 
     parser = a.ArgumentParser(description='A simple fof solver using tptp syntax')
     parser.add_argument('--file', action='store')
+    parser.add_argument('--jsonfile', action='store')
     parser.add_argument('--formula', action='store')
 
     args = vars(parser.parse_args())
@@ -23,6 +25,8 @@ if __name__ == '__main__':
         fof_data = from_file(args['file'])
     elif args['formula']:
         fof_data = from_string("fof(ax,axiom," + args['formula'] + ").")
+    elif args['jsonfile']:
+        fof_data = l.load_file(args['jsonfile'])
     else :
         string = "fof(ax, axiom, ![X]: r(X) => ?[Y]:r(Y) )."
         fof_data = from_string(string)
