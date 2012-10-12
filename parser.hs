@@ -21,8 +21,8 @@ getRole  (AFormula {role = (Role {unrole = s})}) = s
 getFormula (AFormula { formula = f }) = genFormula $ unwrapF f
 
 genFormula (BinOp f1 op f2) = "{"++
-                               "\"Type\": \"BinaryOperator\" ,\n" ++
-                               "\"Op\"" ++ ": "++ decodeOp(op) ++ ",\n" ++
+                               "\"type\": \"BinaryOperator\" ,\n" ++
+                               "\"op\"" ++ ": "++ decodeOp(op) ++ ",\n" ++
                                "\"leftFormula\"" ++ ": " ++ genFormula (unwrapF f1) ++ ",\n" ++
                                "\"rightFormula\"" ++ ": " ++ genFormula (unwrapF f2) ++ "\n" ++
                                "}"
@@ -30,7 +30,7 @@ genFormula (Quant quantor variables f) = "{" ++
                                 "\"type\": \"quantor\",\n \"op\": " ++ decodeQuantor quantor ++ ",\n" ++
                                 "\"variables\" : [" ++ ((intercalate ","). (map genVar)) variables ++ "]," ++
                                 "\"formula\" : " ++ genFormula (unwrapF f) ++ "}"
-genFormula ((:~:) f) = "{ \"Type\" : \"UnaryOperator\", \"Op\" : \"~\", \"formula\" : " ++ (genFormula . unwrapF) f ++ "}"
+genFormula ((:~:) f) = "{ \"type\" : \"unaryOperator\", \"op\" : \"~\", \"formula\" : " ++ (genFormula . unwrapF) f ++ "}"
 genFormula (PredApp (AtomicWord s) args ) = "{ \"type\" : \"relation\", \"name\" : \"" ++ s ++ "\", " ++
                                             "\"terms\" : " ++ genTermList args  ++ "}"
 
@@ -58,8 +58,7 @@ decodeOp1 (:|:) = "|"
 decodeOp1 (:~|:) = "~|"
 
 
-getBinOP = ""
 jsonify a = "{" ++
             " \"name\" " ++ ": \"" ++ getName a ++ "\" ," ++
-            " \"type\" " ++ ": \"" ++ getRole a ++ "\" ," ++
+            " \"role\" " ++ ": \"" ++ getRole a ++ "\" ," ++
             " \"formula\" " ++ ":" ++ getFormula a ++ "}"

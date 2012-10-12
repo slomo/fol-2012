@@ -3,7 +3,7 @@ import json
 
 def unary_handler(data):
     f = load(data['formula'])
-    return UnaryOperator("~",F)
+    return UnaryOperator("~",f)
 
 def binary_handler(data):
     left = load(data['leftFormula'])
@@ -11,7 +11,8 @@ def binary_handler(data):
     return BinaryOperator(data['op'], left, right)
 
 def quantor_handler(data):
-    return Quantor(data["quantor"], load(data["variables"]), load(data["formula"]))
+    variables = [ load(x) for x in data["variables"] ]
+    return Quantor(data["op"], variables, load(data["formula"]))
 
 def function_handler(data):
     name = data["name"]
@@ -27,18 +28,19 @@ def variable_handler(data):
     return Variable(data['name'])
 
 def load(data):
-
-    print(data)
-    if data.type == "relation":
-        relation_handler(data)
-    elif data.type == "function":
-        function_handler(data)
-    elif data.type == "binaryOperator":
-        binary_handler(data)
-    elif data.type == "unaryOperator":
-        unary_handler(data)
-    elif data.type == "variable":
-        variable_handler(data)
+    dtype = data["type"]
+    if dtype == "relation":
+        return relation_handler(data)
+    elif dtype == "function":
+        return function_handler(data)
+    elif dtype == "binaryOperator":
+        return binary_handler(data)
+    elif dtype == "unaryOperator":
+        return unary_handler(data)
+    elif dtype == "variable":
+        return variable_handler(data)
+    elif dtype == "quantor":
+        return quantor_handler(data)
 
 def load_file(filename):
 
