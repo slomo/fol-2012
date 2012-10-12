@@ -22,7 +22,8 @@ if __name__ == '__main__':
 
     args = vars(parser.parse_args())
     if args['file']:
-        fof_data = from_file(args['file'])
+        fof_data = l.parse_and_load(args['file'])
+        #fof_data = from_file(args['file'])
     elif args['formula']:
         fof_data = from_string("fof(ax,axiom," + args['formula'] + ").")
     elif args['jsonfile']:

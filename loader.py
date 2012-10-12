@@ -1,5 +1,7 @@
 from fofTypes import *
+from subprocess import Popen, PIPE
 import json
+import os
 
 def unary_handler(data):
     f = load(data['formula'])
@@ -12,6 +14,7 @@ def binary_handler(data):
 
 def quantor_handler(data):
     variables = [ load(x) for x in data["variables"] ]
+    print("---------------------",load(data["formula"]))
     return Quantor(data["op"], variables, load(data["formula"]))
 
 def function_handler(data):
@@ -41,13 +44,28 @@ def load(data):
         return variable_handler(data)
     elif dtype == "quantor":
         return quantor_handler(data)
+    else:
+        print(dtype)
+        assert(False)
+
+def load_tree(tree):
+    for form in tree:
+        form["formula"] = load(form["formula"])
+
+    return tree
 
 def load_file(filename):
 
     with open(filename) as f:
         tree = json.load(f)
+        return load_tree(tree)
 
-        for form in tree:
-            form["formula"] = load(form["formula"])
+def parse_and_load(filename):
 
-        return tree
+    parser = Popen(["./parser", filename], stdout=PIPE)
+
+    parser.wait()
+    (data,other) = parser.communicate()
+
+    data = data.decode('utf-8')
+    return load_tree(json.loads(data))

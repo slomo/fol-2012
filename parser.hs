@@ -21,7 +21,7 @@ getRole  (AFormula {role = (Role {unrole = s})}) = s
 getFormula (AFormula { formula = f }) = genFormula $ unwrapF f
 
 genFormula (BinOp f1 op f2) = "{"++
-                               "\"type\": \"BinaryOperator\" ,\n" ++
+                               "\"type\": \"binaryOperator\" ,\n" ++
                                "\"op\"" ++ ": "++ decodeOp(op) ++ ",\n" ++
                                "\"leftFormula\"" ++ ": " ++ genFormula (unwrapF f1) ++ ",\n" ++
                                "\"rightFormula\"" ++ ": " ++ genFormula (unwrapF f2) ++ "\n" ++
@@ -60,5 +60,5 @@ decodeOp1 (:~|:) = "~|"
 
 jsonify a = "{" ++
             " \"name\" " ++ ": \"" ++ getName a ++ "\" ," ++
-            " \"role\" " ++ ": \"" ++ getRole a ++ "\" ," ++
+            " \"type\" " ++ ": \"" ++ getRole a ++ "\" ," ++
             " \"formula\" " ++ ":" ++ getFormula a ++ "}"
