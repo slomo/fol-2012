@@ -28,23 +28,34 @@ if __name__ == '__main__':
     elif args['jsonfile']:
         fof_data = l.load_file(args['jsonfile'])
     else :
-        string = "fof(ax, axiom, ![X]: r(X) => ?[Y]:r(Y) )."
+        string = "fof(ax, axiom, ![X]: r(X) => ?[Y]:r(Y) ).fof(ax, conjecture, ![X]: r(X) => ?[Y]:r(Y) )."
         fof_data = from_string(string)
-    import pprint
-    pprint.pprint(fof_data)
-    org_formula = fof_data[0]["formula"]
-    print("input formula:",org_formula)
-    formula = org_formula.negate()
-    formula = o.transform(formula)
-    print("transform negated formula:", formula)
-    result = r.proof(formula)
 
-    if result:
-        print("formula is theorem")
-    else:
-        formula = o.transform(org_formula)
-        if r.proof(formula):
-            print("formula is counter theorem")
+    print("input formula:",fof_data)
+    conjectures = []
+    axioms = []
+    for formula in fof_data:
+        if formula['type'] in ('axiom', 'theorem'):
+            formula = o.transform(formula['formula'])
+            axioms.append(formula)
+        elif formula['type'] in ('conjecture'):
+            f = formula['formula'].negate()
+            f = o.transform(f)
+            conjectures.append(f)
+    print('axioms: ', axioms)
+    print('conjectures: ', conjectures)
+    for conjecture in conjectures:
+        print("working on: ", conjecture)
+        stuff = []
+        stuff.append(conjecture)
+        stuff += axioms
+        print(type(stuff))
+        result = r.proof(stuff)
+        if result:
+            print("formula is theorem")
         else:
-            print("Unable")
-
+            stuff[0] = o.transform(conjecture.negate())
+            if r.proof(stuff):
+                print("formula is counter theorem")
+            else:
+                print("Unable")

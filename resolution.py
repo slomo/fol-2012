@@ -59,10 +59,10 @@ def is_splittable(form):
     return False
 
 
-def proof(formula):
-
-    print('about to be rejected', formula)
-    unsplitted = Conjunction([Disjunction([formula])])
+def proof(formulas):
+    print(type(formulas[0]))
+    disjunctions = [Disjunction([x]) for x in formulas]
+    unsplitted = Conjunction(disjunctions)
     splitted = Conjunction([])
 
 
@@ -237,5 +237,3 @@ def s_wrapper(formula, sups):
         return f.UnaryOperator("~", u.substitute(formula.term, sups))
     else:
         assert(False)
-
-
