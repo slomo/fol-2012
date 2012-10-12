@@ -78,7 +78,7 @@ def proof(formulas):
     # Phase 2
     knf = splitted
 
-    iterations = 300
+    iterations = 30
 
     print("atomics",knf)
 
@@ -98,7 +98,8 @@ def proof(formulas):
                 return True
 
             knf.add(disj)
-
+        print("Iteration",i)
+        print("Set",knf)
     return None
 
 # returns: <[]>
@@ -217,6 +218,14 @@ def resolute(disj_a, disj_b):
                     continue
 
                 resolvente = Disjunction(list_disj_a + list_disj_b)
+                free_vars = disj_a.free_vars.union(disj_b.free_vars)
+
+                #sig = {}
+                #for var in free_vars:
+                #    sig[var] =next(gen_free())
+
+                #resolvente = Disjunction([ s_wrapper(x, sig) for x in resolvente ])
+                #resolvente.free_vars = set(sig.values())
 
                 #if repr(list_disj_a) == "[~r(v4)]":
                 #    pdb.set_trace()

@@ -5,7 +5,7 @@ from fofTypes import *
 
 def proof(formula):
     formula = o.transform(formula.negate())
-    return r.proof(formula)
+    return r.proof([formula])
 
 for_all = lambda v,x:  Quantor("!", [ v ], x )
 
